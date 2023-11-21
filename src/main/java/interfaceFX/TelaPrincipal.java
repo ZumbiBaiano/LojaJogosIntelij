@@ -13,11 +13,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TelaPrincipal extends Application {
     private ListView<String> jogosListView;
     private List<CatalogoDeJogos> allJogos;
+    private TelaPedidos telaPedidos; // Adicionado
 
     public static void main(String[] args) {
         launch(args);
@@ -33,26 +33,28 @@ public class TelaPrincipal extends Application {
 
         Label titleLabel = new Label("Catálogo de Jogos");
 
-        // Campo de pesquisa
+        // Barra De Pesquisa
         TextField searchField = new TextField();
         searchField.setPromptText("Pesquisar por nome do jogo");
+
+
 
         jogosListView = new ListView<>();
         Button editButton = new Button("Editar Jogo");
         Button removeButton = new Button("Remover Jogo");
         Button refreshButton = new Button("Atualizar");
-        Button newJogoButton = new Button("Novo Jogo");
+        Button selectJogoButton = new Button("Selecionar Jogo");
 
-        // Popule a ListView com os jogos do banco de dados
+
         CatalogoDeJogosDAO catalogoDao = new CatalogoDeJogosDAO();
-        allJogos = catalogoDao.getCliCatalogo_de_Jogos();
+        allJogos = catalogoDao.getCatalogoDeJogos();
         atualizarListaJogos();
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Atualize a lista com base na pesquisa
+
             List<CatalogoDeJogos> jogosFiltrados = allJogos.stream()
                     .filter(jogo -> jogo.getNome_jogo().toLowerCase().contains(newValue.toLowerCase()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             jogosListView.getItems().clear();
             for (CatalogoDeJogos jogo : jogosFiltrados) {
@@ -61,17 +63,17 @@ public class TelaPrincipal extends Application {
         });
 
         editButton.setOnAction(e -> {
-            // Verifica se há um item selecionado na lista
+
             if (!jogosListView.getSelectionModel().isEmpty()) {
                 String selectedJogo = jogosListView.getSelectionModel().getSelectedItem();
 
-                // Certifique-se de que selectedJogo não seja nulo
+
                 if (selectedJogo != null) {
-                    // Certifique-se de que extrairId() nunca retorna nulo
-                    Integer id = extrairId(selectedJogo);
+
+                    Integer id = extrairId_Jogo(selectedJogo);
 
                     if (id != null) {
-                        // Utilize Integer.equals para comparar Integer
+
                         CatalogoDeJogos jogo = allJogos.stream()
                                 .filter(j -> Integer.valueOf(id).equals(j.getId_jogo()))
                                 .findFirst()
@@ -85,20 +87,79 @@ public class TelaPrincipal extends Application {
             }
         });
 
+//        removeButton.setOnAction(e -> {
+//
+//            if (!jogosListView.getSelectionModel().isEmpty()) {
+//                String selectedJogo = jogosListView.getSelectionModel().getSelectedItem();
+//
+//
+//                if (selectedJogo != null) {
+//
+//                    Integer id = extrairId_Jogo(selectedJogo);
+//
+//                    if (id != null) {
+//
+//                        CatalogoDeJogos jogo = allJogos.stream()
+//                                .filter(j -> Integer.valueOf(id).equals(j.getId_jogo()))
+//                                .findFirst()
+//                                .orElse(null);
+//
+//                        if (jogo != null) {
+//
+//                            catalogoDao.delete(jogo);
+//
+//                            //remove o jogo
+//                            allJogos.remove(jogo);
+//
+//                            // Atualize a lista de jogos na tela
+//                            atualizarListaJogos();
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
+        removeButton.setOnAction(e -> {
+            String selectedPaciente = jogosListView.getSelectionModel().getSelectedItem();
+            if (selectedPaciente != null) {
+                int prontuario = extrairId_Jogo(selectedPaciente);
+                CatalogoDeJogosDAO.deleteByPK(prontuario);
+                // Remova o paciente da lista local
+                String id_jogo = null;
+                CatalogoDeJogos pacienteARemover = allJogos.stream()
+                        .filter(p -> p.getId_jogo() == id_jogo)
+                        .findFirst()
+                        .orElse(null);
+
+                if (pacienteARemover != null) {
+                    allJogos.remove(pacienteARemover);
+                }
+                atualizarListaJogos();
+            }
+        });
 
         refreshButton.setOnAction(e -> {
-            // Recarregue todos os jogos do banco de dados
-            allJogos = catalogoDao.getCliCatalogo_de_Jogos();
+            // Atualiza os jogos do catalogo
+            allJogos = catalogoDao.getCatalogoDeJogos();
             atualizarListaJogos();
         });
 
-//        newJogoButton.setOnAction(e -> {
-//            TelaCadastroJogo telaCadastroJogo = new TelaCadastroJogo();
-//            telaCadastroJogo.start(new Stage());
-//        });
+        telaPedidos = new TelaPedidos(); //
+        selectJogoButton.setOnAction(e -> {
+            // Adiciona o jogo selecionado à telaPedidos
+            if (!jogosListView.getSelectionModel().isEmpty()) {
+                String selectedJogo = jogosListView.getSelectionModel().getSelectedItem();
+                telaPedidos.adicionarJogoSelecionado(selectedJogo);
 
-        root.getChildren().addAll(titleLabel, searchField, jogosListView, editButton, removeButton, refreshButton, newJogoButton);
+                // Redirecione para a telaPedidos
+                Stage telaPedidosStage = new Stage();
+                telaPedidos.start(telaPedidosStage);
+            }
+        });
+
+        telaPedidos = new TelaPedidos(); // Adicionado
+
+        root.getChildren().addAll(titleLabel, searchField, jogosListView, editButton, removeButton, refreshButton, selectJogoButton);
 
         stage.setScene(scene);
         stage.show();
@@ -111,11 +172,22 @@ public class TelaPrincipal extends Application {
         }
     }
 
-    private int extrairId(String jogoString) {
-        int idIndex = jogoString.indexOf("ID: ") + 4;
-        int nomeIndex = jogoString.indexOf(" - Nome: ");
-        String idStr = jogoString.substring(idIndex, nomeIndex);
-        return Integer.parseInt(idStr);
+    private int extrairId_Jogo(String jogoString) {
+        int idStartIndex = jogoString.indexOf("ID: ") + 4;
+        int idEndIndex = jogoString.indexOf(" - Nome: ");
+
+        if (idStartIndex >= 0 && idEndIndex >= 0 && idStartIndex < idEndIndex) {
+            try {
+                String idStr = jogoString.substring(idStartIndex, idEndIndex);
+                return Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                // Lidar com a exceção de conversão de string para inteiro
+                e.printStackTrace(); // ou outra forma de tratamento
+                return -1; // ou outra indicação de erro
+            }
+        } else {
+            return -1;
+        }
     }
 
     private void abrirJanelaEdicao(CatalogoDeJogos jogo, CatalogoDeJogosDAO catalogoDao) {
@@ -147,7 +219,7 @@ public class TelaPrincipal extends Application {
         Button salvarButton = new Button("Salvar");
 
         salvarButton.setOnAction(e -> {
-            // Atualize os dados do jogo com base nos valores dos campos
+
             jogo.setNome_jogo(nomeField.getText());
             jogo.setPreco(Double.parseDouble(precoField.getText()));
             jogo.setClassificacao_idade(Integer.parseInt(classificacaoField.getText()));

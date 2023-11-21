@@ -34,7 +34,7 @@ public class TelaLogin extends Application {
         GridPane.setConstraints(passwordLabel, 0, 1);
 
         // Campos de entrada
-        TextField emailInput = new TextField();
+        TextField emailInput = new TextField();  // Remova a declaração anterior aqui
         GridPane.setConstraints(emailInput, 1, 0);
 
         PasswordField passwordInput = new PasswordField();
@@ -56,11 +56,22 @@ public class TelaLogin extends Application {
     }
 
     private void realizarLogin(String email, String senha) {
-        // Adicione aqui a lógica para verificar o login com o email e senha fornecidos.
-        // Por enquanto, apenas exibiremos as informações no console.
-        System.out.println("Email: " + email);
-        System.out.println("Senha criptografada: " + criptografarSenha(senha));
+
+        ;
+
+        // rediceriona para a tela principla, se logar com sucesso
+        TelaPrincipal telaPrincipal = new TelaPrincipal();
+        Stage stage = new Stage();
+        try {
+            telaPrincipal.start(stage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Feche a janela de login
+        //((Stage) emailInput.getScene().getWindow()).close();
     }
+
 
     private String criptografarSenha(String senha) {
         // Use SHA-256 para calcular o hash da senha

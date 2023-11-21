@@ -17,17 +17,17 @@ public class Main {
 
 
         //Atualizar o informacoes do cliente
-//		Clientes c1 = new Clientes();
-//		c1.setNome("Kleber Banban");
-//		c1.setEmail("733.414.780-43");
-//		c1.setEmail("nokoy55033@soebing.com");
-//		c1.setId(6);//Número da Chave primária
-//
-//		clientesDao.update(c1);
+		Clientes c1 = new Clientes();
+		c1.setNome_cliente("Kleber Banban");
+		c1.setEmail("733.414.780-43");
+		c1.setEmail("nokoy55033@soebing.com");
+		c1.setId_cliente(6);//Número da Chave primária
+
+		clientesDao.update(c1);
 
         //Deletar o contato pelo ID
-//		clientesDao.deleteByID(1);
-//		clientesDao.deleteByID(6);
+		//clientesDao.deleteByID(1);
+	 	//clientesDao.deleteByID(6);
 
         //Visualização dos registros do banco de dados TODOS os registros
         for(Clientes c : clientesDao.getCliente()) {

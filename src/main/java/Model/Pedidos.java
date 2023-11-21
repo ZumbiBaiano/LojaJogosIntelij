@@ -4,26 +4,18 @@ import java.util.Date;
 
 public class Pedidos {
 
-    private String id_cliente;
-    private String id_jogo;
+    private int id_pedido;
     private String endereco;
     private double preco;
     private String plataforma;
+    private String id_cliente; // Chave estrangeira referenciando Clientes
 
-    public String getId_cliente() {
-        return id_cliente;
+    public int getId_pedido() {
+        return id_pedido;
     }
 
-    public void setId_cliente(String id_cliente) {
-        this.id_cliente = id_cliente;
-    }
-
-    public String getId_jogo() {
-        return id_jogo;
-    }
-
-    public void setId_jogo(String id_jogo) {
-        this.id_jogo = id_jogo;
+    public void setId_pedido(int id_pedido) {
+        this.id_pedido = id_pedido;
     }
 
     public String getEndereco() {
@@ -50,10 +42,18 @@ public class Pedidos {
         this.plataforma = plataforma;
     }
 
-
-    public void add(Clientes clientes2) {
-        // TODO Auto-generated method stub
-
+    public String getId_cliente() {
+        return id_cliente;
     }
 
+    public void setId_cliente(String id_cliente) {
+        this.id_cliente = id_cliente;
+    }
+
+    public String getId_jogo() {
+        return null;
+    }
+
+    public void setId_jogo(String idJogo) {
+    }
 }
